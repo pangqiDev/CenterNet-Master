@@ -23,9 +23,9 @@ class APPLE(data.Dataset):
     self.data_dir = os.path.join(opt.data_dir, 'apple')
     self.img_dir = os.path.join(self.data_dir, 'images')
     if split == 'test':
-      self.annot_path = os.path.join(
-          self.data_dir, 'annotations', 
-          'test2017.json')
+        self.annot_path = os.path.join(
+            self.data_dir, 'annotations', 
+            'test2017.json')
     else:
       if opt.task == 'exdet':
         self.annot_path = os.path.join(
