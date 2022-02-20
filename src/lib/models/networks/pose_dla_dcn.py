@@ -445,9 +445,9 @@ class DLASeg(nn.Module):
         
         self.conv1 = nn.Conv2d(64, 64, kernel_size=1)
         self.max1 = nn.MaxPool2d(kernel_size=5, stride=1, padding=2)
-        self.max2 = nn.MaxPool2d(kernel_size=7, stride=1, padding=3)
-        self.max3 = nn.MaxPool2d(kernel_size=9, stride=1, padding=4)
-        self.conv2 = nn.Conv2d(192, 64, kernel_size=1)
+        self.max2 = nn.MaxPool2d(kernel_size=9, stride=1, padding=4)
+        self.max3 = nn.MaxPool2d(kernel_size=13, stride=1, padding=6)
+        self.conv2 = nn.Conv2d(256, 64, kernel_size=1)
 
         self.heads = heads
         for head in self.heads:
@@ -486,7 +486,7 @@ class DLASeg(nn.Module):
         y1 = self.max1(y)
         y2 = self.max2(y)
         y3 = self.max3(y)
-        y = torch.cat((y1, y2, y3), 1)
+        y = torch.cat((y3, y2, y1,y), 1)
         y = self.conv2(y)
 
         z = {}
