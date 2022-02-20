@@ -5,6 +5,7 @@ from __future__ import print_function
 import os
 import math
 import logging
+from termios import PARODD
 import numpy as np
 from os.path import join
 
@@ -442,6 +443,12 @@ class DLASeg(nn.Module):
         self.ida_up = IDAUp(out_channel, channels[self.first_level:self.last_level], 
                             [2 ** i for i in range(self.last_level - self.first_level)])
         
+        self.conv1 = nn.Conv2d(64, 64, kernel_size=1)
+        self.max1 = nn.MaxPool2d(kernel_size=5, stride=1, padding=2)
+        self.max2 = nn.MaxPool2d(kernel_size=7, stride=1, padding=3)
+        self.max3 = nn.MaxPool2d(kernel_size=9, stride=1, padding=4)
+        self.conv2 = nn.Conv2d(192, 64, kernel_size=1)
+
         self.heads = heads
         for head in self.heads:
             classes = self.heads[head]
@@ -470,15 +477,21 @@ class DLASeg(nn.Module):
     def forward(self, x):
         x = self.base(x)
         x = self.dla_up(x)
-
         y = []
         for i in range(self.last_level - self.first_level):
             y.append(x[i].clone())
         self.ida_up(y, 0, len(y))
 
+        y = self.conv1(y[-1])
+        y1 = self.max1(y)
+        y2 = self.max2(y)
+        y3 = self.max3(y)
+        y = torch.cat((y1, y2, y3), 1)
+        y = self.conv2(y)
+
         z = {}
         for head in self.heads:
-            z[head] = self.__getattr__(head)(y[-1])
+            z[head] = self.__getattr__(head)(y)
         return [z]
     
 
